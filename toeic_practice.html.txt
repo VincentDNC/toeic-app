@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>TOEIC 英文練習</title>
+<style>
+body { font-family: Arial; padding: 20px; }
+h1 { color: #333; }
+.question { margin-top: 20px; }
+button { margin-top: 10px; }
+.result { margin-top: 10px; font-weight: bold; }
+</style>
+</head>
+
+<body>
+
+<h1>📘 TOEIC 每日練習</h1>
+
+<div id="vocab"></div>
+
+<div class="question">
+  <p id="question"></p>
+  <input type="text" id="answer" placeholder="輸入答案">
+  <br>
+  <button onclick="checkAnswer()">提交答案</button>
+  <div class="result" id="result"></div>
+</div>
+
+<script>
+const vocabList = [
+  { word: "increase", meaning: "增加" },
+  { word: "purchase", meaning: "購買" },
+  { word: "schedule", meaning: "行程" },
+  { word: "require", meaning: "需要" },
+  { word: "available", meaning: "可取得的" }
+];
+
+const questions = [
+  { q: "We need to _____ the sales this year.", a: "increase" },
+  { q: "Please confirm your _____ by email.", a: "schedule" },
+  { q: "This product is not _____ now.", a: "available" }
+];
+
+let currentQ;
+
+function showVocab() {
+  let v = vocabList[Math.floor(Math.random() * vocabList.length)];
+  document.getElementById("vocab").innerHTML =
+    "📖 單字：<b>" + v.word + "</b> = " + v.meaning;
+}
+
+function showQuestion() {
+  currentQ = questions[Math.floor(Math.random() * questions.length)];
+  document.getElementById("question").innerText = "✏️ " + currentQ.q;
+}
+
+function checkAnswer() {
+  let user = document.getElementById("answer").value.toLowerCase();
+  if (user === currentQ.a) {
+    document.getElementById("result").innerText = "✅ 正確！";
+  } else {
+    document.getElementById("result").innerText =
+      "❌ 錯誤，答案是：" + currentQ.a;
+  }
+}
+
+showVocab();
+showQuestion();
+</script>
+
+</body>
+</html>
