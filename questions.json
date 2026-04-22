@@ -1,0 +1,10 @@
+[
+  { "q": "We need to _____ costs.", "a": "reduce", "m": "降低成本", "level": "easy" },
+  { "q": "Please _____ your order.", "a": "confirm", "m": "確認訂單", "level": "easy" },
+  { "q": "The meeting was _____ to Friday.", "a": "moved", "m": "會議被改期", "level": "easy" },
+  { "q": "He will _____ a new plan.", "a": "propose", "m": "提出計畫", "level": "medium" },
+  { "q": "We need to _____ the data carefully.", "a": "analyze", "m": "分析資料", "level": "medium" },
+  { "q": "The company will _____ new employees.", "a": "recruit", "m": "招募員工", "level": "medium" },
+  { "q": "They decided to _____ the contract.", "a": "terminate", "m": "終止合約", "level": "hard" },
+  { "q": "We must _____ all possibilities.", "a": "consider", "m": "考慮所有可能", "level": "hard" }
+]
