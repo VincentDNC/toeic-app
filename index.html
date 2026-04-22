@@ -2,13 +2,70 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>TOEIC 英文練習</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOEIC 練習（手機版）</title>
+
 <style>
-body { font-family: Arial; padding: 20px; }
-h1 { color: #333; }
-.question { margin-top: 20px; }
-button { margin-top: 10px; }
-.result { margin-top: 10px; font-weight: bold; }
+body {
+  font-family: Arial;
+  padding: 15px;
+  background: #f5f5f5;
+}
+
+h1 {
+  font-size: 22px;
+}
+
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 15px;
+}
+
+.word {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.meaning {
+  color: gray;
+  margin-top: 5px;
+}
+
+.question {
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  font-size: 18px;
+  margin-top: 10px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+}
+
+.result {
+  font-size: 18px;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.stats {
+  margin-top: 10px;
+  font-size: 16px;
+}
 </style>
 </head>
 
@@ -16,14 +73,20 @@ button { margin-top: 10px; }
 
 <h1>📘 TOEIC 每日練習</h1>
 
-<div id="vocab"></div>
+<div class="card">
+  <div id="vocab"></div>
+</div>
 
-<div class="question">
-  <p id="question"></p>
-  <input type="text" id="answer" placeholder="輸入答案">
-  <br>
-  <button onclick="checkAnswer()">提交答案</button>
+<div class="card">
+  <div id="question"></div>
+  <input id="answer" placeholder="輸入答案">
+  <button onclick="checkAnswer()">提交</button>
   <div class="result" id="result"></div>
+</div>
+
+<div class="card stats">
+  今日答對：<span id="correct">0</span> /
+  錯誤：<span id="wrong">0</span>
 </div>
 
 <script>
@@ -32,36 +95,58 @@ const vocabList = [
   { word: "purchase", meaning: "購買" },
   { word: "schedule", meaning: "行程" },
   { word: "require", meaning: "需要" },
-  { word: "available", meaning: "可取得的" }
+  { word: "available", meaning: "可取得的" },
+  { word: "confirm", meaning: "確認" },
+  { word: "delay", meaning: "延遲" }
 ];
 
 const questions = [
-  { q: "We need to _____ the sales this year.", a: "increase" },
-  { q: "Please confirm your _____ by email.", a: "schedule" },
-  { q: "This product is not _____ now.", a: "available" }
+  { q: "We need to _____ the sales.", a: "increase" },
+  { q: "Please _____ your order.", a: "confirm" },
+  { q: "The flight was _____ due to weather.", a: "delay" },
+  { q: "This item is not _____.", a: "available" }
 ];
 
 let currentQ;
 
+let correct = localStorage.getItem("correct") || 0;
+let wrong = localStorage.getItem("wrong") || 0;
+
+document.getElementById("correct").innerText = correct;
+document.getElementById("wrong").innerText = wrong;
+
 function showVocab() {
   let v = vocabList[Math.floor(Math.random() * vocabList.length)];
   document.getElementById("vocab").innerHTML =
-    "📖 單字：<b>" + v.word + "</b> = " + v.meaning;
+    "<div class='word'>" + v.word + "</div>" +
+    "<div class='meaning'>" + v.meaning + "</div>";
 }
 
 function showQuestion() {
   currentQ = questions[Math.floor(Math.random() * questions.length)];
-  document.getElementById("question").innerText = "✏️ " + currentQ.q;
+  document.getElementById("question").innerHTML =
+    "<div class='question'>✏️ " + currentQ.q + "</div>";
 }
 
 function checkAnswer() {
   let user = document.getElementById("answer").value.toLowerCase();
+
   if (user === currentQ.a) {
     document.getElementById("result").innerText = "✅ 正確！";
+    correct++;
+    localStorage.setItem("correct", correct);
   } else {
     document.getElementById("result").innerText =
-      "❌ 錯誤，答案是：" + currentQ.a;
+      "❌ 錯誤，答案：" + currentQ.a;
+    wrong++;
+    localStorage.setItem("wrong", wrong);
   }
+
+  document.getElementById("correct").innerText = correct;
+  document.getElementById("wrong").innerText = wrong;
+
+  document.getElementById("answer").value = "";
+  showQuestion();
 }
 
 showVocab();
