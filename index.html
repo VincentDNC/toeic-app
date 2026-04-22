@@ -3,18 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TOEIC 練習（手機版）</title>
+<title>TOEIC 練習</title>
 
 <style>
-body {
-  font-family: Arial;
-  padding: 15px;
-  background: #f5f5f5;
-}
-
-h1 {
-  font-size: 22px;
-}
+body { font-family: Arial; padding: 15px; background: #f5f5f5; }
+h1 { font-size: 20px; }
 
 .card {
   background: white;
@@ -23,27 +16,8 @@ h1 {
   margin-top: 15px;
 }
 
-.word {
-  font-size: 22px;
-  font-weight: bold;
-}
-
-.meaning {
-  color: gray;
-  margin-top: 5px;
-}
-
-.question {
-  font-size: 18px;
-  margin-top: 10px;
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  font-size: 18px;
-  margin-top: 10px;
-}
+.question { font-size: 20px; }
+input { width: 100%; padding: 10px; font-size: 18px; margin-top: 10px; }
 
 button {
   width: 100%;
@@ -56,14 +30,11 @@ button {
   border-radius: 8px;
 }
 
-.result {
-  font-size: 18px;
-  margin-top: 10px;
-  font-weight: bold;
-}
+.result { margin-top: 10px; font-size: 18px; }
 
-.stats {
+.select {
   margin-top: 10px;
+  padding: 8px;
   font-size: 16px;
 }
 </style>
@@ -71,11 +42,15 @@ button {
 
 <body>
 
-<h1>📘 TOEIC 每日練習</h1>
+<h1>📘 TOEIC 練習</h1>
 
-<div class="card">
-  <div id="vocab"></div>
-</div>
+<select id="level" class="select" onchange="changeLevel()">
+  <option value="all">全部</option>
+  <option value="easy">簡單</option>
+  <option value="medium">中等</option>
+  <option value="hard">困難</option>
+  <option value="wrong">錯題</option>
+</select>
 
 <div class="card">
   <div id="question"></div>
@@ -84,73 +59,82 @@ button {
   <div class="result" id="result"></div>
 </div>
 
-<div class="card stats">
-  今日答對：<span id="correct">0</span> /
-  錯誤：<span id="wrong">0</span>
-</div>
-
 <script>
-const vocabList = [
-  { word: "increase", meaning: "增加" },
-  { word: "purchase", meaning: "購買" },
-  { word: "schedule", meaning: "行程" },
-  { word: "require", meaning: "需要" },
-  { word: "available", meaning: "可取得的" },
-  { word: "confirm", meaning: "確認" },
-  { word: "delay", meaning: "延遲" }
-];
-
-const questions = [
-  { q: "We need to _____ the sales.", a: "increase" },
-  { q: "Please _____ your order.", a: "confirm" },
-  { q: "The flight was _____ due to weather.", a: "delay" },
-  { q: "This item is not _____.", a: "available" }
-];
+let allQuestions = [];
+let filtered = [];
+let wrongList = JSON.parse(localStorage.getItem("wrongList") || "[]");
 
 let currentQ;
+let currentLevel = "all";
 
-let correct = localStorage.getItem("correct") || 0;
-let wrong = localStorage.getItem("wrong") || 0;
+// 載入題庫
+fetch("questions.json")
+  .then(res => res.json())
+  .then(data => {
+    allQuestions = data;
+    applyFilter();
+  });
 
-document.getElementById("correct").innerText = correct;
-document.getElementById("wrong").innerText = wrong;
+function applyFilter() {
+  if (currentLevel === "wrong") {
+    filtered = allQuestions.filter(q => wrongList.includes(q.q));
+  } else if (currentLevel === "all") {
+    filtered = [...allQuestions];
+  } else {
+    filtered = allQuestions.filter(q => q.level === currentLevel);
+  }
 
-function showVocab() {
-  let v = vocabList[Math.floor(Math.random() * vocabList.length)];
-  document.getElementById("vocab").innerHTML =
-    "<div class='word'>" + v.word + "</div>" +
-    "<div class='meaning'>" + v.meaning + "</div>";
+  shuffle(filtered);
+  showQuestion();
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
 }
 
 function showQuestion() {
-  currentQ = questions[Math.floor(Math.random() * questions.length)];
+  if (filtered.length === 0) {
+    document.getElementById("question").innerText = "（目前沒有題目）";
+    return;
+  }
+
+  currentQ = filtered.pop();
+
   document.getElementById("question").innerHTML =
-    "<div class='question'>✏️ " + currentQ.q + "</div>";
+    "✏️ " + currentQ.q;
 }
 
 function checkAnswer() {
   let user = document.getElementById("answer").value.toLowerCase();
 
   if (user === currentQ.a) {
-    document.getElementById("result").innerText = "✅ 正確！";
-    correct++;
-    localStorage.setItem("correct", correct);
+    document.getElementById("result").innerHTML =
+      "✅ 正確<br>答案：" + currentQ.a + "<br>" + currentQ.m;
+
+    // 從錯題移除
+    wrongList = wrongList.filter(q => q !== currentQ.q);
   } else {
-    document.getElementById("result").innerText =
-      "❌ 錯誤，答案：" + currentQ.a;
-    wrong++;
-    localStorage.setItem("wrong", wrong);
+    document.getElementById("result").innerHTML =
+      "❌ 錯誤<br>答案：" + currentQ.a + "<br>" + currentQ.m;
+
+    if (!wrongList.includes(currentQ.q)) {
+      wrongList.push(currentQ.q);
+    }
   }
 
-  document.getElementById("correct").innerText = correct;
-  document.getElementById("wrong").innerText = wrong;
+  localStorage.setItem("wrongList", JSON.stringify(wrongList));
 
   document.getElementById("answer").value = "";
   showQuestion();
 }
 
-showVocab();
-showQuestion();
+function changeLevel() {
+  currentLevel = document.getElementById("level").value;
+  applyFilter();
+}
 </script>
 
 </body>
